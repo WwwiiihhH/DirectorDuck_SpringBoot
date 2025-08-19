@@ -18,11 +18,10 @@ public class Post {
     private String imageUrl;
 
     @Column(nullable = false)
-    private Long publisherId; // 发布者ID
+    private Long publisherId;
 
     @Column(nullable = false)
-    private String publisherUsername; // 发布者用户名
+    private String publisherUsername;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }
-

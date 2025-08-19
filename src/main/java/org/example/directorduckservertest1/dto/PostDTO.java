@@ -19,10 +19,9 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private Long likeCount;
     private Boolean isLiked;
-    private Long commentCount; // 添加评论数量字段
-    private List<CommentDTO> comments; // 添加评论列表字段
+    private Long commentCount;
+    private List<CommentDTO> comments;
 
-    // 从Post实体创建PostDTO的构造方法
     public static PostDTO fromPost(Post post, Long likeCount, Boolean isLiked, Long commentCount, List<CommentDTO> comments) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());
@@ -34,7 +33,7 @@ public class PostDTO {
         dto.setLikeCount(likeCount);
         dto.setIsLiked(isLiked);
         dto.setCommentCount(commentCount);
-        dto.setComments(comments); // 设置评论列表
+        dto.setComments(comments);
         return dto;
     }
 }

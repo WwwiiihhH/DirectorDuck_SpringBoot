@@ -15,7 +15,7 @@ public class CommentDTO {
     private Long userId;
     private String username;
     private LocalDateTime createdAt;
-    
+
     public static CommentDTO fromComment(org.example.directorduckservertest1.entity.Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());

@@ -1,21 +1,18 @@
 package org.example.directorduckservertest1.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.example.directorduckservertest1.common.Result;
 import org.example.directorduckservertest1.entity.User;
 import org.example.directorduckservertest1.repository.UserRepository;
 import org.example.directorduckservertest1.service.UserService;
 import org.example.directorduckservertest1.util.PasswordEncoderUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public Result<User> register(User user) {
@@ -50,4 +47,3 @@ public class UserServiceImpl implements UserService {
                 .orElseGet(() -> Result.<User>error("手机号未注册"));
     }
 }
-

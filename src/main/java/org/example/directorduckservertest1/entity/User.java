@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users") // 避免与MySQL保留字冲突
+@Table(name = "users")
 public class User {
 
     @Id
@@ -17,13 +17,7 @@ public class User {
     private Long id;
 
     private String username;
-
     private String phone;
-
     private String email;
-
     private String password;
-
-
-
 }
