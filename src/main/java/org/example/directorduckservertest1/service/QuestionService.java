@@ -271,4 +271,49 @@ public class QuestionService {
         }
     }
 
+    // 随机获取题目
+    public Result<List<QuestionSimpleDTO>> getRandomQuestions(RandomQuestionRequestDTO requestDTO) {
+        try {
+            // 参数校验
+            if (requestDTO == null) {
+                return Result.error("请求参数不能为空");
+            }
+
+            Integer count = requestDTO.getCount();
+            if (count == null) {
+                return Result.error("题目数量不能为空");
+            }
+            if (count < 5 || count > 20) {
+                return Result.error("题目数量必须在5-20之间");
+            }
+
+            Integer categoryId = requestDTO.getCategoryId();
+            Integer subcategoryId = requestDTO.getSubcategoryId();
+
+            // 必须指定大类或小类中的一个
+            if (categoryId == null && subcategoryId == null) {
+                return Result.error("必须指定大类ID或小类ID");
+            }
+
+            // 不能同时指定大类和小类
+            if (categoryId != null && subcategoryId != null) {
+                return Result.error("不能同时指定大类ID和小类ID");
+            }
+
+            List<QuestionSimpleDTO> questions;
+
+            if (categoryId != null) {
+                // 按大类随机获取题目
+                questions = questionMapper.getRandomQuestionsByCategory(categoryId, count);
+            } else {
+                // 按小类随机获取题目
+                questions = questionMapper.getRandomQuestionsBySubcategory(subcategoryId, count);
+            }
+
+            return Result.success(questions);
+        } catch (Exception e) {
+            return Result.error("获取随机题目失败：" + e.getMessage());
+        }
+    }
+
 }

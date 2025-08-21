@@ -269,5 +269,46 @@ public interface QuestionMapper {
     })
     String findQuestionTableByUuid(@Param("uuid") String uuid);
 
+    // 根据大类随机获取指定数量的题目
+    @Select({
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM (",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_political_theory WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_common_sense WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_language_comprehension WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_quantitative_relation WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_reasoning WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_data_analysis WHERE subcategory_id IN ",
+            "(SELECT id FROM question_subcategory WHERE category_id = #{categoryId}) AND status = 1",
+            ") AS all_questions ORDER BY RAND() LIMIT #{count}"
+    })
+    List<QuestionSimpleDTO> getRandomQuestionsByCategory(@Param("categoryId") Integer categoryId, @Param("count") Integer count);
+
+    // 根据小类随机获取指定数量的题目
+    @Select({
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM (",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_political_theory WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_common_sense WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_language_comprehension WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_quantitative_relation WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_reasoning WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d FROM questions_data_analysis WHERE subcategory_id = #{subcategoryId} AND status = 1",
+            ") AS all_questions ORDER BY RAND() LIMIT #{count}"
+    })
+    List<QuestionSimpleDTO> getRandomQuestionsBySubcategory(@Param("subcategoryId") Integer subcategoryId, @Param("count") Integer count);
 
 }

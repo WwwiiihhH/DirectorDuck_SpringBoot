@@ -76,4 +76,11 @@ public class QuestionController {
     public Result<String> deleteQuestion(@RequestBody QuestionDeleteDTO questionDeleteDTO) {
         return questionService.deleteQuestion(questionDeleteDTO);
     }
+
+    // 随机获取题目
+    @PostMapping("/random")
+    public Result<List<QuestionSimpleDTO>> getRandomQuestions(@RequestBody RandomQuestionRequestDTO requestDTO) {
+        return questionService.getRandomQuestions(requestDTO);
+    }
+
 }
