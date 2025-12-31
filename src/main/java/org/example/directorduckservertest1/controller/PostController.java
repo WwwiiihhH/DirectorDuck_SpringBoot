@@ -27,6 +27,9 @@ public class PostController {
 
     private static final String UPLOAD_DIR = "D:/DirectorDuckPostImg/";
 
+//    // 修改为云服务器存储路径
+//    private static final String UPLOAD_DIR = "/www/wwwroot/images/";
+
     @PostMapping("/create")
     public ResponseEntity<Post> createPost(
             @RequestParam("content") String content,
@@ -52,11 +55,55 @@ public class PostController {
 
             String imageUrl = "/uploads/" + fileName;
             post.setImageUrl(imageUrl);
+
+//            // 修改为云服务器的访问URL
+//            String imageUrl = "http://59.110.16.30:8080/images/" + fileName;
+//            post.setImageUrl(imageUrl);
+
+
         }
 
         Post savedPost = postService.save(post);
         return ResponseEntity.ok(savedPost);
     }
+
+//
+//    // 确保使用云服务器存储路径
+//    private static final String UPLOAD_DIR = "/www/wwwroot/images/";
+//
+//    @PostMapping("/create")
+//    public ResponseEntity<Post> createPost(
+//            @RequestParam("content") String content,
+//            @RequestParam("publisherId") Long publisherId,
+//            @RequestParam("publisherUsername") String publisherUsername,
+//            @RequestParam(value = "image", required = false) MultipartFile image
+//    ) throws IOException {
+//
+//        Post post = new Post();
+//        post.setContent(content);
+//        post.setPublisherId(publisherId);
+//        post.setPublisherUsername(publisherUsername);
+//
+//        if (image != null && !image.isEmpty()) {
+//            File dir = new File(UPLOAD_DIR);
+//            if (!dir.exists()) {
+//                dir.mkdirs(); // 确保目录存在
+//            }
+//
+//            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+//            Path filePath = Paths.get(UPLOAD_DIR, fileName);
+//            Files.write(filePath, image.getBytes());
+//
+//            // *** 修改这里：返回相对路径 ***
+//            // 这样前端就知道应该用 /images/ 路径访问
+//            String imageUrl = "/images/" + fileName; // 返回相对路径
+//            post.setImageUrl(imageUrl);
+//        }
+//
+//        Post savedPost = postService.save(post);
+//        return ResponseEntity.ok(savedPost);
+//    }
+
 
     @GetMapping("/list")
     public Result<List<Post>> getAllPosts() {
