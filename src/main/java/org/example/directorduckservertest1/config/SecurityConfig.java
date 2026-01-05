@@ -34,7 +34,9 @@ public class SecurityConfig {
                                 "/videos/**",
                                 "/api/questions/**",
                                 "/images/**",
-                                "/api/notices/**"
+                                "/api/notices/**",
+                                "/quizuploads/**",
+                                "/api/file/upload/quiz-image"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
