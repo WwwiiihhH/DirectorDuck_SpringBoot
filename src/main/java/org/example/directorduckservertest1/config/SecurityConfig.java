@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/api/deepseek/**",
                                 "/api/kimi",
                                 "/api/user/**",
                                 "/api/courses",

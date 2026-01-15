@@ -83,4 +83,11 @@ public class QuestionController {
         return questionService.getRandomQuestions(requestDTO);
     }
 
+    // 批量添加题目
+    @PostMapping("/batch-add")
+    public Result<BatchAddResultDTO> batchAddQuestions(@RequestBody QuestionBatchAddDTO batchDTO) {
+        return questionService.batchAddQuestions(batchDTO);
+    }
+
+
 }

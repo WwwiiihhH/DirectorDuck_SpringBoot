@@ -8,6 +8,10 @@ import org.example.directorduckservertest1.mapper.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -315,5 +319,145 @@ public class QuestionService {
             return Result.error("获取随机题目失败：" + e.getMessage());
         }
     }
+
+    // 批量添加题目：默认“有一条失败就整体回滚”
+// 如果你想“部分成功部分失败”，我也给你方案（看文末）。
+    @Transactional(rollbackFor = Exception.class)
+    public Result<BatchAddResultDTO> batchAddQuestions(QuestionBatchAddDTO batchDTO) {
+        try {
+            if (batchDTO == null || batchDTO.getQuestions() == null || batchDTO.getQuestions().isEmpty()) {
+                return Result.error("题目列表不能为空");
+            }
+
+            List<QuestionAddDTO> list = batchDTO.getQuestions();
+            BatchAddResultDTO resultDTO = new BatchAddResultDTO();
+            resultDTO.setTotal(list.size());
+
+            // 1) 预加载所有子类，避免每题都查库
+            List<QuestionSubcategory> subs = questionMapper.getAllSubcategories();
+            Map<Integer, Integer> subIdToCatId = subs.stream()
+                    .collect(Collectors.toMap(QuestionSubcategory::getId, QuestionSubcategory::getCategoryId, (a, b) -> a));
+
+            // 2) 逐条校验 + 自动补全 categoryId + 收集错误
+            List<QuestionAddDTO> validated = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                QuestionAddDTO q = list.get(i);
+
+                String err = validateQuestionAddDTO(q);
+                if (err != null) {
+                    resultDTO.getFailures().add(new BatchAddResultDTO.FailItem(i, err));
+                    continue;
+                }
+
+                Integer categoryId = q.getCategoryId();
+                if (categoryId == null) {
+                    Integer cat = subIdToCatId.get(q.getSubcategoryId());
+                    if (cat == null) {
+                        resultDTO.getFailures().add(new BatchAddResultDTO.FailItem(i, "子类ID不存在：" + q.getSubcategoryId()));
+                        continue;
+                    }
+                    q.setCategoryId(cat);
+                } else {
+                    // 额外校验：categoryId 与 subcategoryId 是否匹配（可选但很推荐）
+                    Integer realCat = subIdToCatId.get(q.getSubcategoryId());
+                    if (realCat == null) {
+                        resultDTO.getFailures().add(new BatchAddResultDTO.FailItem(i, "子类ID不存在：" + q.getSubcategoryId()));
+                        continue;
+                    }
+                    if (!categoryId.equals(realCat)) {
+                        resultDTO.getFailures().add(new BatchAddResultDTO.FailItem(i,
+                                "categoryId与subcategoryId不匹配：传入categoryId=" + categoryId + "，实际应为 " + realCat));
+                        continue;
+                    }
+                }
+
+                validated.add(q);
+            }
+
+            // 如果有失败：这里选择直接整体失败（回滚更安全）
+            if (!resultDTO.getFailures().isEmpty()) {
+                resultDTO.setSuccess(0);
+                resultDTO.setFail(resultDTO.getFailures().size());
+                // 抛异常触发事务回滚（导入一般希望“要么全成要么全不成”）
+                throw new RuntimeException("批量导入校验失败，未入库。失败条数=" + resultDTO.getFail());
+            }
+
+            // 3) 按 categoryId 分组
+            Map<Integer, List<QuestionAddDTO>> group = validated.stream()
+                    .collect(Collectors.groupingBy(QuestionAddDTO::getCategoryId));
+
+            int inserted = 0;
+
+            // 4) 分表批量插入
+            for (Map.Entry<Integer, List<QuestionAddDTO>> entry : group.entrySet()) {
+                Integer catId = entry.getKey();
+                List<QuestionAddDTO> qs = entry.getValue();
+                if (qs == null || qs.isEmpty()) continue;
+
+                int r;
+                switch (catId) {
+                    case 1:
+                        r = questionMapper.batchAddPoliticalTheoryQuestions(qs);
+                        break;
+                    case 2:
+                        r = questionMapper.batchAddCommonSenseQuestions(qs);
+                        break;
+                    case 3:
+                        r = questionMapper.batchAddLanguageComprehensionQuestions(qs);
+                        break;
+                    case 4:
+                        r = questionMapper.batchAddQuantitativeRelationQuestions(qs);
+                        break;
+                    case 5:
+                        r = questionMapper.batchAddReasoningQuestions(qs);
+                        break;
+                    case 6:
+                        r = questionMapper.batchAddDataAnalysisQuestions(qs);
+                        break;
+                    default:
+                        throw new RuntimeException("不支持的题目类别：" + catId);
+                }
+                inserted += r;
+            }
+
+            resultDTO.setSuccess(inserted);
+            resultDTO.setFail(0);
+            return Result.success(resultDTO);
+
+        } catch (Exception e) {
+            // 事务会回滚
+            return Result.error("批量添加题目失败：" + e.getMessage());
+        }
+    }
+
+    // 复用你的单题校验逻辑：抽成一个方法
+    private String validateQuestionAddDTO(QuestionAddDTO q) {
+        if (q == null) return "题目信息不能为空";
+        if (q.getSubcategoryId() == null) return "子类ID不能为空";
+        if (!StringUtils.hasText(q.getQuestionText())) return "题目内容不能为空";
+
+        if (!StringUtils.hasText(q.getOptionA()) ||
+                !StringUtils.hasText(q.getOptionB()) ||
+                !StringUtils.hasText(q.getOptionC()) ||
+                !StringUtils.hasText(q.getOptionD())) {
+            return "四个选项都不能为空";
+        }
+
+        if (!StringUtils.hasText(q.getCorrectAnswer())) return "正确答案不能为空";
+
+        String ca = q.getCorrectAnswer().trim();
+        if (!("A".equals(ca) || "B".equals(ca) || "C".equals(ca) || "D".equals(ca))) {
+            return "正确答案必须是A、B、C、D中的一个";
+        }
+
+        // 难度可选，但传了就限制范围
+        if (q.getDifficultyLevel() != null) {
+            byte d = q.getDifficultyLevel();
+            if (d < 1 || d > 3) return "difficultyLevel必须是1/2/3";
+        }
+
+        return null;
+    }
+
 
 }

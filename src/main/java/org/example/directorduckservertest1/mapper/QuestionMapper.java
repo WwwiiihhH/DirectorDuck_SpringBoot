@@ -311,4 +311,84 @@ public interface QuestionMapper {
     })
     List<QuestionSimpleDTO> getRandomQuestionsBySubcategory(@Param("subcategoryId") Integer subcategoryId, @Param("count") Integer count);
 
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_political_theory ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddPoliticalTheoryQuestions(@Param("list") List<QuestionAddDTO> list);
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_common_sense ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddCommonSenseQuestions(@Param("list") List<QuestionAddDTO> list);
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_language_comprehension ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddLanguageComprehensionQuestions(@Param("list") List<QuestionAddDTO> list);
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_quantitative_relation ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddQuantitativeRelationQuestions(@Param("list") List<QuestionAddDTO> list);
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_reasoning ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddReasoningQuestions(@Param("list") List<QuestionAddDTO> list);
+
+    @Insert({
+            "<script>",
+            "INSERT INTO questions_data_analysis ",
+            "(subcategory_id, question_text, question_image, option_a, option_b, option_c, option_d, ",
+            "correct_answer, analysis, difficulty_level, uuid) VALUES ",
+            "<foreach collection='list' item='q' separator=','>",
+            "(#{q.subcategoryId}, #{q.questionText}, #{q.questionImage}, #{q.optionA}, #{q.optionB}, #{q.optionC}, #{q.optionD}, ",
+            "#{q.correctAnswer}, #{q.analysis}, #{q.difficultyLevel}, UUID())",
+            "</foreach>",
+            "</script>"
+    })
+    int batchAddDataAnalysisQuestions(@Param("list") List<QuestionAddDTO> list);
+
+
 }
