@@ -391,4 +391,60 @@ public interface QuestionMapper {
     int batchAddDataAnalysisQuestions(@Param("list") List<QuestionAddDTO> list);
 
 
+    @Select({
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d, category_name FROM (",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'政治理论' as category_name FROM questions_political_theory WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'常识判断' as category_name FROM questions_common_sense WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'言语理解与表达' as category_name FROM questions_language_comprehension WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'数量关系' as category_name FROM questions_quantitative_relation WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'判断推理' as category_name FROM questions_reasoning WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "'资料分析' as category_name FROM questions_data_analysis WHERE uuid = #{uuid} AND status = 1",
+            ") t LIMIT 1"
+    })
+    FavoriteQuestionDTO getQuestionSimpleForFavoriteByUuid(@Param("uuid") String uuid);
+
+
+    // 给“收藏列表”用：按UUID获取题目详情（建议过滤 status=1）
+    @Select({
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'政治理论' as category_name FROM questions_political_theory WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'常识判断' as category_name FROM questions_common_sense WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'言语理解与表达' as category_name FROM questions_language_comprehension WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'数量关系' as category_name FROM questions_quantitative_relation WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'判断推理' as category_name FROM questions_reasoning WHERE uuid = #{uuid} AND status = 1",
+            "UNION ALL",
+            "SELECT id, uuid, question_text, question_image, option_a, option_b, option_c, option_d,",
+            "correct_answer, analysis, difficulty_level, status, created_time, updated_time,",
+            "'资料分析' as category_name FROM questions_data_analysis WHERE uuid = #{uuid} AND status = 1",
+            "LIMIT 1"
+    })
+    QuestionDetailDTO getQuestionDetailForFavoriteByUuid(@Param("uuid") String uuid);
+
+
+
+
 }
