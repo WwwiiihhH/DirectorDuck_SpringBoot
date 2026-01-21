@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 课程
+ * 课程管理：获取课程列表
+ *
+ * @module 课程模块
+ */
+
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
@@ -19,6 +26,12 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    /**
+     * 获取全部课程
+     * 返回系统内所有课程数据列表
+     *
+     * @return 课程列表（Course）
+     */
     @GetMapping
     public Result<List<Course>> getAllCourses() {
         List<Course> list = courseService.getAllCourses();

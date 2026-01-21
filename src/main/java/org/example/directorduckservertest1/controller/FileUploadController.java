@@ -18,6 +18,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/**
+ * 文件/上传
+ * 文件上传：题干图片上传（image/*）
+ *
+ * @module 文件模块
+ */
 @RestController
 @RequestMapping("/api/file") // 定义一个基础路径
 @CrossOrigin // 如果需要跨域访问
@@ -29,9 +35,11 @@ public class FileUploadController {
     private String uploadDir;
 
     /**
-     * 上传题干图片接口
-     * @param file 上传的图片文件
-     * @return Result<String> 包含上传后文件名的Result对象
+     * 上传题干图片
+     * 上传图片文件并返回服务器保存后的文件名（multipart/form-data）
+     *
+     * @param file 图片文件（字段名 file）
+     * @return 上传结果（成功返回唯一文件名）
      */
     @PostMapping("/upload/quiz-image")
     public Result<String> uploadQuizImage(@RequestParam("file") MultipartFile file) {
