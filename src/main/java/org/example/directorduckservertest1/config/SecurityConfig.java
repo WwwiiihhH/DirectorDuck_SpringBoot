@@ -38,8 +38,13 @@ public class SecurityConfig {
                                 "/api/notices/**",
                                 "/quizuploads/**",
                                 "/api/file/upload/quiz-image",
-                                "/api/favorites/**"
+                                "/api/favorites/**",
+                                "/api/mock-exams/**"
                         ).permitAll()
+
+                        // 新增：管理端必须 ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
@@ -52,7 +57,7 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(
                 User.withUsername("admin")
                         .password(passwordEncoder().encode("123456"))
-                        .roles("USER")
+                        .roles("ADMIN")
                         .build()
         );
     }
