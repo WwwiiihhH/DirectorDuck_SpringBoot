@@ -52,4 +52,23 @@ public class MockExamController {
             return Result.error("查询失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 查询用户是否已完成作答
+     * 根据模考场次ID和用户ID，查询该用户是否已经提交过试卷（数据库中是否存在成绩记录）
+     *
+     * @param sessionId 场次ID（路径参数）
+     * @param userId    用户ID（Query参数）
+     * @return Boolean (true:已完成/已交卷, false:未完成)
+     */
+    @GetMapping("/{sessionId}/is-completed")
+    public Result<Boolean> checkCompletion(@PathVariable Long sessionId, @RequestParam Long userId) {
+        try {
+            // ✅ 直接调用 service (MockExamSessionService) 的方法
+            boolean isCompleted = service.hasUserCompletedExam(sessionId, userId);
+            return Result.success(isCompleted);
+        } catch (Exception e) {
+            return Result.error("查询状态失败：" + e.getMessage());
+        }
+    }
 }

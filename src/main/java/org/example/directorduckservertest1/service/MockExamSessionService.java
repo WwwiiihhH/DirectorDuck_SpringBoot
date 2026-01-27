@@ -10,4 +10,5 @@ public interface MockExamSessionService {
     MockExamSession update(Long id, MockExamSessionCreateRequest req);
     MockExamSession getById(Long id);
     List<MockExamSession> listAll();
+    boolean hasUserCompletedExam(Long sessionId, Long userId);
 }

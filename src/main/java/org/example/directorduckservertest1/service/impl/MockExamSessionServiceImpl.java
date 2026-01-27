@@ -3,6 +3,7 @@ package org.example.directorduckservertest1.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.directorduckservertest1.dto.MockExamSessionCreateRequest;
 import org.example.directorduckservertest1.entity.MockExamSession;
+import org.example.directorduckservertest1.mapper.MockExamScoringMapper;
 import org.example.directorduckservertest1.repository.MockExamSessionRepository;
 import org.example.directorduckservertest1.service.MockExamSessionService;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 public class MockExamSessionServiceImpl implements MockExamSessionService {
 
     private final MockExamSessionRepository repo;
+    private final MockExamScoringMapper resultMapper;
 
     @Override
     public MockExamSession create(MockExamSessionCreateRequest req) {
@@ -80,4 +82,16 @@ public class MockExamSessionServiceImpl implements MockExamSessionService {
         if (now.isAfter(end)) return 2;
         return 1;
     }
+
+    @Override
+    public boolean hasUserCompletedExam(Long sessionId, Long userId) {
+        if (sessionId == null || userId == null) {
+            return false;
+        }
+        // 调用 Mapper 查询 mock_exam_result 表
+        int count = resultMapper.countBySessionAndUser(sessionId, userId);
+        return count > 0;
+    }
+
+
 }

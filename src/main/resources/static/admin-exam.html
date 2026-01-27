@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理 - 创建模考</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding-top: 50px; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-label { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">创建新的模考场次</h4>
+                </div>
+                <div class="card-body">
+                    <form id="createExamForm">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">模考标题</label>
+                            <input type="text" class="form-control" id="title" placeholder="例如：2026年省考行测第一季" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startTime" class="form-label">开考时间</label>
+                                <input type="datetime-local" class="form-control" id="startTime" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="endTime" class="form-label">收卷时间</label>
+                                <input type="datetime-local" class="form-control" id="endTime" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="registerDeadline" class="form-label">报名截止时间 (可选)</label>
+                            <input type="datetime-local" class="form-control" id="registerDeadline">
+                            <div class="form-text">如果不填，可能需要在后端逻辑处理默认值，建议填写。</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">提交创建</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="resultAlert" class="alert mt-4 d-none" role="alert"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 配置你的后端地址
+    const API_URL = '/api/admin/mock-exams';
+
+    // 配置管理员账号密码 (因为你开启了 httpBasic)
+    // 注意：实际生产中不应硬编码在前端，这里是为了演示方便
+    const USERNAME = 'admin';
+    const PASSWORD = '123456';
+
+    document.getElementById('createExamForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // 1. 获取数据
+        const title = document.getElementById('title').value;
+        const startTimeInput = document.getElementById('startTime').value;
+        const endTimeInput = document.getElementById('endTime').value;
+        const deadlineInput = document.getElementById('registerDeadline').value;
+
+        // 2. 数据校验与格式转换
+        // HTML5 datetime-local 格式为 "yyyy-MM-ddTHH:mm"，后端通常需要 "yyyy-MM-dd HH:mm:ss"
+        // 我们需要把 'T' 换成空格，并补上秒
+        const formatTime = (timeStr) => {
+            if (!timeStr) return null;
+            return timeStr.replace('T', ' ') + ':00';
+        };
+
+        const requestData = {
+            title: title,
+            startTime: formatTime(startTimeInput),
+            endTime: formatTime(endTimeInput),
+            registerDeadline: formatTime(deadlineInput)
+        };
+
+        const resultAlert = document.getElementById('resultAlert');
+
+        try {
+            // 3. 发送请求
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 生成 Basic Auth 头: "Basic YWRtaW46MTIzNDU2"
+                    'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            // 4. 处理响应
+            resultAlert.classList.remove('d-none');
+            if (response.ok && (result.code === 1 || result.code === 200 || result.code === 0)) {
+
+                // 这里是成功的逻辑
+                resultAlert.className = 'alert alert-success mt-4';
+                resultAlert.innerHTML = `<strong>创建成功！</strong> 场次ID: ${result.data ? result.data.id : 'OK'}`;
+                resultAlert.classList.remove('d-none');
+
+            } else {
+                // 这里是失败的逻辑
+                console.log("后端返回的Result对象:", result); // 在控制台打印出来方便调试
+                resultAlert.className = 'alert alert-danger mt-4';
+                // 尝试读取 msg 或者 message 字段，防止字段名不一致
+                const errorMsg = result.msg || result.message || '未知错误';
+                resultAlert.innerHTML = `<strong>创建失败：</strong> ${errorMsg} (状态码: ${result.code})`;
+                resultAlert.classList.remove('d-none');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            resultAlert.classList.remove('d-none');
+            resultAlert.className = 'alert alert-danger mt-4';
+            resultAlert.textContent = '请求发送失败，请检查控制台网络日志';
+        }
+    });
+</script>
+</body>
+</html>

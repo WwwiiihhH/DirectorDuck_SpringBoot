@@ -63,4 +63,10 @@ public interface MockExamScoringMapper {
             "</script>"
     })
     List<MockExamAnswerKey> dataKeys(@Param("uuids") List<String> uuids);
+
+    /**
+     * 查询某用户在某场模考是否有结果记录
+     */
+    @Select("SELECT COUNT(*) FROM mock_exam_result WHERE session_id = #{sessionId} AND user_id = #{userId}")
+    int countBySessionAndUser(@Param("sessionId") Long sessionId, @Param("userId") Long userId);
 }
