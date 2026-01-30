@@ -8,6 +8,8 @@ import org.example.directorduckservertest1.service.UserService;
 import org.example.directorduckservertest1.util.PasswordEncoderUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -45,5 +47,23 @@ public class UserServiceImpl implements UserService {
                     }
                 })
                 .orElseGet(() -> Result.<User>error("手机号未注册"));
+    }
+
+    @Override
+    public Result<List<User>> getAllUsers() {
+        // 直接调用 Repository 查所有，实际项目中建议做分页，这里先简单做
+        List<User> users = userRepository.findAll();
+        //以此保护隐私，把密码设为空，不返回给前端
+        users.forEach(u -> u.setPassword("******"));
+        return Result.success(users);
+    }
+
+    @Override
+    public Result<String> deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            return Result.error("用户不存在");
+        }
+        userRepository.deleteById(userId);
+        return Result.success("用户已删除");
     }
 }

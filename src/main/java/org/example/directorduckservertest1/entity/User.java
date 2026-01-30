@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -20,4 +21,7 @@ public class User {
     private String phone;
     private String email;
     private String password;
+
+
+
 }
